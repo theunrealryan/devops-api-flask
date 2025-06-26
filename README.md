@@ -1,6 +1,3 @@
-Abaixo está um **README.md** completo (em português) pronto para ser copiado para a raiz do repositório **`devops-api-flask`** no GitLab.
-
-```markdown
 # DevOps API Flask 🚀
 
 [![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
