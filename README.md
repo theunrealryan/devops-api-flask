@@ -1,4 +1,8 @@
-# DevOps API Flask 🚀
+<<<<<<< HEAD
+# DevOps-API-Flask 🚀
+=======
+# DevOps API Flask
+>>>>>>> 3a7dc08 (Teste de espelhamento para GitHub)
 
 [![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
 [![coverage report](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/coverage.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/graphs/main/charts)
