@@ -1,93 +1,188 @@
-# DevOps-API-Flask
+Abaixo está um **README.md** completo (em português) pronto para ser copiado para a raiz do repositório **`devops-api-flask`** no GitLab.
 
+```markdown
+# DevOps API Flask 🚀
 
+[![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
+[![coverage report](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/coverage.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/graphs/main/charts)
 
-## Getting started
+API de tarefas simples escrita em **Flask** e empacotada em **Docker** com **Docker Compose** para desenvolvimento local, **Docker Swarm** para orquestração em produção e **GitLab CI/CD** para pipeline automatizado.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+> “Build once, run everywhere” – código, testes, imagem, deploy e observabilidade num único fluxo.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+---
 
-## Add your files
+## ✨ Funcionalidades
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+* CRUD de tarefas (`/tasks`) em JSON.  
+* Testes unitários com **pytest** & cobertura ≥ 80 %.  
+* Imagem Docker otimizada via *multi-stage build* :contentReference[oaicite:0]{index=0}.  
+* Ambiente local com **docker compose** :contentReference[oaicite:1]{index=1}.  
+* Escalonamento e *rolling update* em **Docker Swarm** :contentReference[oaicite:2]{index=2}.  
+* Pipeline **GitLab CI/CD** que _builda_, testa, publica no *Container Registry* e faz deploy :contentReference[oaicite:3]{index=3}.
+
+---
+
+## 🏗️ Requisitos
+
+| Ferramenta | Versão sugerida | Referência |
+|------------|-----------------|------------|
+| Python | ≥ 3.11 | :contentReference[oaicite:4]{index=4} |
+| Docker Engine | ≥ 26.x | :contentReference[oaicite:5]{index=5} |
+| Docker Compose | v2 | :contentReference[oaicite:6]{index=6} |
+| GitLab Runner | ≥ 17 | :contentReference[oaicite:7]{index=7} |
+
+---
+
+## 📂 Estrutura do projeto
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/devops-api-flask/devops-api-flask.git
-git branch -M main
-git push -uf origin main
+
+.
+├── app.py              # Código Flask
+├── requirements.txt    # Dependências Python
+├── Dockerfile          # Build multi-stage
+├── docker-compose.yml  # Ambiente local
+├── tests/              # Pytest
+└── .gitlab-ci.yml      # Pipeline CI/CD
+
+````
+
+---
+
+## 🚀 Instalação & Execução local
+
+```bash
+# 1. clone o repositório
+git clone https://gitlab.com/devops-api-flask/devops-api-flask.git
+cd devops-api-flask
+
+# 2. suba tudo com Compose
+docker compose up --build -d          # cria API + Postgres
+
+# 3. teste a API
+curl -X POST http://localhost:5000/tasks \
+     -H "Content-Type: application/json" \
+     -d '{"title":"Estudar DevOps"}'
+curl http://localhost:5000/tasks
+````
+
+O **Compose** simplifica ambientes multi-contêiner com um único arquivo YAML ([docs.docker.com][1]).
+
+---
+
+## 🐳 Imagem Docker
+
+Criada em duas fases para reduzir tamanho e dependências:
+
+```dockerfile
+# build
+FROM python:3.12-slim AS builder
+WORKDIR /src
+COPY requirements.txt .
+RUN pip install --user -r requirements.txt
+
+# runtime
+FROM python:3.12-alpine
+WORKDIR /app
+COPY --from=builder /root/.local /root/.local
+COPY . .
+ENV PATH="/root/.local/bin:$PATH"
+CMD ["python", "app.py"]
 ```
 
-## Integrate with your tools
+Multi-stage mantém a imagem final enxuta e segura ([docs.docker.com][2]).
 
-- [ ] [Set up project integrations](https://gitlab.com/devops-api-flask/devops-api-flask/-/settings/integrations)
+---
 
-## Collaborate with your team
+## 🐝 Pipeline GitLab CI/CD (`.gitlab-ci.yml`)
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+1. **build** – cria & sobe imagem para *Container Registry*.
+2. **test** – roda pytest + cobertura.
+3. **deploy** – atualiza serviço no Swarm via `docker service update`.
 
-## Test and Deploy
+Exemplo de estágio *build*:
 
-Use the built-in continuous integration in GitLab.
+```yaml
+build:
+  stage: build
+  image: docker:latest
+  services: [docker:dind]
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+A combinação **Docker-in-Docker** + Runner em modo `privileged` é recomendada para builds de imagem ([docs.gitlab.com][3]).
 
-***
+---
 
-# Editing this README
+## ⚓ Deploy em Docker Swarm
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+# no nó manager
+docker swarm init --advertise-addr <IP_MANAGER>
 
-## Suggestions for a good README
+# criar rede overlay
+docker network create --driver overlay taskboard_net
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+# deploy inicial
+docker stack deploy -c docker-compose.yml taskboard
+docker service ls            # confere réplicas
 
-## Name
-Choose a self-explaining name for your project.
+# rolling update (zero-downtime)
+docker service update --image $REGISTRY/taskboard:latest \
+                      --update-delay 10s taskboard_web
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+O Swarm gerencia escala, auto-recuperação e rollback automático ([docs.docker.com][4]).
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+---
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## 🧪 Testes
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+```bash
+pip install -r requirements.txt pytest pytest-cov
+pytest --cov=app
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Os relatórios de cobertura são publicados como *artifacts* no pipeline ([docs.gitlab.com][5]).
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+---
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## 🤝 Como contribuir
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+1. Crie um *fork* e uma branch `feature/<sua-feature>`.
+2. Envie *Merge Request* seguindo o template.
+3. Garanta pipeline verde + cobertura ≥ 80 %.
+4. Será feita revisão de código assíncrona.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+---
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## 📜 Licença
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Distribuído sob a licença **MIT** – consulte `LICENSE` para mais detalhes.
 
-## License
-For open source projects, say how it is licensed.
+---
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## 🙋‍♀️ Créditos
+
+Inspirado na documentação oficial do Flask ([flask.palletsprojects.com][6]) e nos guias de **Docker** ([docs.docker.com][7]) e **GitLab CI/CD** ([docs.gitlab.com][8]). Agradecimentos à comunidade DevOps que mantém essas ferramentas incríveis!
+
+---
+
+*“Automate all the things, but entenda cada passo.”*
+
+```
+::contentReference[oaicite:16]{index=16}
+```
+
+[1]: https://docs.docker.com/compose/gettingstarted/?utm_source=chatgpt.com "Docker Compose Quickstart"
+[2]: https://docs.docker.com/get-started/docker-concepts/building-images/multi-stage-builds/?utm_source=chatgpt.com "Multi-stage builds - Docker Docs"
+[3]: https://docs.gitlab.com/ci/docker/using_docker_images/?utm_source=chatgpt.com "Run your CI/CD jobs in Docker containers - GitLab Docs"
+[4]: https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/?utm_source=chatgpt.com "Apply rolling updates to a service - Docker Docs"
+[5]: https://docs.gitlab.com/ci/quick_start/?utm_source=chatgpt.com "Tutorial: Create and run your first GitLab CI/CD pipeline"
+[6]: https://flask.palletsprojects.com/en/stable/quickstart/?utm_source=chatgpt.com "Quickstart — Flask Documentation (3.1.x)"
+[7]: https://docs.docker.com/get-started/docker-concepts/running-containers/multi-container-applications/?utm_source=chatgpt.com "Multi-container applications - Docker Docs"
+[8]: https://docs.gitlab.com/ci/examples/?utm_source=chatgpt.com "GitLab CI/CD examples"
