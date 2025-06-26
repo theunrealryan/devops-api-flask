@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  web:
+    image: taskboard:dev        # Usa a imagem já construída localmente
+    ports:
+      - "5000:5000"             # Mapeia porta 5000 do host → 5000 do container
+    depends_on:
+      - db                      # Garante que o serviço 'db' seja iniciado antes
+
+  db:
+    image: postgres:16          # Usa a imagem oficial do PostgreSQL 16
+    environment:
+      POSTGRES_PASSWORD: changeme  # Define a senha do usuário 'postgres'

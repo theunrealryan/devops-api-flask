@@ -1,0 +1,37 @@
+stages:          # 1 Define as fases do pipeline
+  - build
+  - test
+  - deploy
+
+variables:       # 2 Variáveis de ambiente compartilhadas
+  DOCKER_HOST: tcp://docker:2375
+
+build:           # 3 Job de build de imagem Docker
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind    # Docker-in-Docker para construir/push de imagens
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker push  $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  only:
+    - main            # Só dispara em commits na branch main
+
+test:            # 4 Job de testes automatizados
+  stage: test
+  image: python:3.12
+  script:
+    - pip install -r requirements.txt pytest pytest-cov
+    - pytest --cov=app
+  artifacts:
+    paths:
+      - htmlcov/      # Salva relatório de cobertura para download
+
+deploy:          # 5 Job de deploy (manual)
+  stage: deploy
+  script:
+    - docker service update \
+        --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA \
+        taskboard_web
+  when: manual     # Executa só quando alguém clicar para disparar
+
