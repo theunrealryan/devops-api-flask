@@ -1,23 +1,24 @@
-stages:          # 1 Define as fases do pipeline
+stages:
   - build
   - test
   - deploy
+  - mirror
 
-variables:       # 2 Variáveis de ambiente compartilhadas
+variables:
   DOCKER_HOST: tcp://docker:2375
 
-build:           # 3 Job de build de imagem Docker
+build:
   stage: build
   image: docker:latest
   services:
-    - docker:dind    # Docker-in-Docker para construir/push de imagens
+    - docker:dind
   script:
     - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push  $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   only:
-    - main            # Só dispara em commits na branch main
+    - main
 
-test:            # 4 Job de testes automatizados
+test:
   stage: test
   image: python:3.12
   script:
@@ -25,13 +26,29 @@ test:            # 4 Job de testes automatizados
     - pytest --cov=app
   artifacts:
     paths:
-      - htmlcov/      # Salva relatório de cobertura para download
+      - htmlcov/
 
-deploy:          # 5 Job de deploy (manual)
+deploy:
   stage: deploy
   script:
     - docker service update \
         --image $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA \
         taskboard_web
-  when: manual     # Executa só quando alguém clicar para disparar
+  when: manual
 
+mirror:
+  stage: mirror
+  image: alpine/git
+  before_script:
+    # configura o SSH para o GitHub
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519_mirror
+    - chmod 600 ~/.ssh/id_ed25519_mirror
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+  script:
+    # adiciona o remoto GitHub (se ainda não existir) e empurra a main
+    - git remote add github git@github.com:theunrealryan/devops-api-flask.git || true
+    - git push github main
+  only:
+    - main
+  when: on_success
