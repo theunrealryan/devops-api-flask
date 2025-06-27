@@ -14,12 +14,11 @@ build:
   services:
     - docker:dind
   script:
-    # 1) Autentica no GitLab Container Registry
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab.com
-    # 2) Build e tag da imagem
-    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
-    # 3) Push da imagem autenticado
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+    # login, build e push em um mesmo bloco shell
+    - |
+      docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab.com
+      docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+      docker push "$CI_REGISTRY_IMAGE:$CI_BUILD_SHORT_SHA"
   only:
     - main
 
@@ -45,21 +44,14 @@ mirror:
   stage: mirror
   image: alpine/git
   before_script:
-    # Prepara diretório SSH
     - mkdir -p ~/.ssh
-    # Injeta a chave privada no arquivo de deploy
     - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
-    # Confia no host GitHub sem prompt
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    # Configura Git para usar essa chave
     - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
   script:
-    # Adiciona remoto GitHub (ignora se já existir)
     - git remote add github ssh://git@github.com:theunrealryan/devops-api-flask.git || true
-    # Assegura que a branch main exista (cria-a se for o primeiro push)
     - git fetch github main || git push github main
-    # Espelha a branch main
     - git push github main
   only:
     - main
