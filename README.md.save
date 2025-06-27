@@ -1,85 +1,86 @@
-# DevOps API Flask 🚀
+## DevOps API Flask 🚀
 
-pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
+[![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
 [![coverage report](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/coverage.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/graphs/main/charts)
 
-API de tarefas simples escrita em **Flask** e empacotada em **Docker** com **Docker Compose** para desenvolvimento local, **Docker Swarm** para orquestração em produção e **GitLab CI/CD** para pipeline automatizado.
+Uma API de gerenciamento de tarefas escrita em **Flask**, empacotada em **Docker** e orquestrada com **Docker Compose** (local), **Docker Swarm** (produção) e **GitLab CI/CD** (pipeline).
 
-> “Build once, run everywhere” – código, testes, imagem, deploy e observabilidade num único fluxo.
+> *“Build once, run everywhere”* — código, testes, container, deploy e monitoramento em um fluxo contínuo.
 
 ---
 
 ## ✨ Funcionalidades
 
-* CRUD de tarefas (`/tasks`) em JSON.  
-* Testes unitários com **pytest** & cobertura ≥ 80 %.  
-* Imagem Docker otimizada via *multi-stage build* :contentReference[oaicite:0]{index=0}.  
-* Ambiente local com **docker compose** :contentReference[oaicite:1]{index=1}.  
-* Escalonamento e *rolling update* em **Docker Swarm** :contentReference[oaicite:2]{index=2}.  
-* Pipeline **GitLab CI/CD** que _builda_, testa, publica no *Container Registry* e faz deploy :contentReference[oaicite:3]{index=3}.
+* **CRUD de tarefas** em JSON via rota `/tasks`
+* **Testes automatizados** com `pytest` e cobertura ≥ 80%
+* **Imagem Docker multi-stage** para build enxuto e seguro
+* **Ambiente local** com Docker Compose
+* **Escalonamento** e **rolling updates** em Docker Swarm
+* **Pipeline GitLab CI/CD**: build, test, push e deploy
 
 ---
 
-## 🏗️ Requisitos
+## 🏗️ Pré-requisitos
 
-| Ferramenta | Versão sugerida | Referência |
-|------------|-----------------|------------|
-| Python | ≥ 3.11 | :contentReference[oaicite:4]{index=4} |
-| Docker Engine | ≥ 26.x | :contentReference[oaicite:5]{index=5} |
-| Docker Compose | v2 | :contentReference[oaicite:6]{index=6} |
-| GitLab Runner | ≥ 17 | :contentReference[oaicite:7]{index=7} |
+| Ferramenta     | Versão mínima | Observações                        |
+| -------------- | ------------- | ---------------------------------- |
+| Python         | 3.11          | Recomenda-se usar virtualenv/venv  |
+| Docker Engine  | 26.x          |                                    |
+| Docker Compose | v2            | Plugin integrado no Docker Desktop |
+| GitLab Runner  | 17.x          | Com Docker-in-Docker habilitado    |
 
 ---
 
-## 📂 Estrutura do projeto
+## 🗂️ Estrutura do Projeto
 
 ```
-
-.
-├── app.py              # Código Flask
-├── requirements.txt    # Dependências Python
-├── Dockerfile          # Build multi-stage
-├── docker-compose.yml  # Ambiente local
-├── tests/              # Pytest
-└── .gitlab-ci.yml      # Pipeline CI/CD
-
-````
+taskboard/
+├── app.py               # Código principal da API Flask
+├── requirements.txt     # Dependências Python
+├── Dockerfile           # Multi-stage build
+├── docker-compose.yml   # Ambiente local
+├── .gitlab-ci.yml       # Pipeline GitLab CI/CD
+├── pytest.ini           # Configuração do pytest & cobertura
+└── tests/               # Testes automatizados (pytest)
+    └── test_api.py
+```
 
 ---
 
-## 🚀 Instalação & Execução local
+## 🚀 Desenvolvimento Local
 
-```bash
-# 1. clone o repositório
-git clone https://gitlab.com/devops-api-flask/devops-api-flask.git
-cd devops-api-flask
+1. **Clone** o repositório:
 
-# 2. suba tudo com Compose
-docker compose up --build -d          # cria API + Postgres
+   ```bash
+   git clone https://gitlab.com/devops-api-flask/devops-api-flask.git
+   cd devops-api-flask
+   ```
+2. **Suba** a stack com Compose:
 
-# 3. teste a API
-curl -X POST http://localhost:5000/tasks \
+   ```bash
+   docker compose up --build -d
+   ```
+3. **Teste** a API:
+
+   ```bash
+   curl -X POST http://localhost:5000/tasks \
      -H "Content-Type: application/json" \
      -d '{"title":"Estudar DevOps"}'
-curl http://localhost:5000/tasks
-````
-
-O **Compose** simplifica ambientes multi-contêiner com um único arquivo YAML ([docs.docker.com][1]).
+   curl http://localhost:5000/tasks
+   ```
 
 ---
 
 ## 🐳 Imagem Docker
 
-Criada em duas fases para reduzir tamanho e dependências:
-
 ```dockerfile
-# build
+# 1. Build stage
 FROM python:3.12-slim AS builder
 WORKDIR /src
 COPY requirements.txt .
 RUN pip install --user -r requirements.txt
 
-# runtime
+# 2. Runtime stage
 FROM python:3.12-alpine
 WORKDIR /app
 COPY --from=builder /root/.local /root/.local
@@ -88,98 +89,126 @@ ENV PATH="/root/.local/bin:$PATH"
 CMD ["python", "app.py"]
 ```
 
-Multi-stage mantém a imagem final enxuta e segura ([docs.docker.com][2]).
+* **Multi-stage** reduz o tamanho da imagem final e isola dependências de build.
 
 ---
 
-## 🐝 Pipeline GitLab CI/CD (`.gitlab-ci.yml`)
-
-1. **build** – cria & sobe imagem para *Container Registry*.
-2. **test** – roda pytest + cobertura.
-3. **deploy** – atualiza serviço no Swarm via `docker service update`.
-
-Exemplo de estágio *build*:
+## 🐝 Pipeline GitLab CI/CD
 
 ```yaml
+stages:
+  - build
+  - test
+  - deploy
+  - mirror
+
+variables:
+  DOCKER_HOST: tcp://docker:2375
+
 build:
   stage: build
   image: docker:latest
   services: [docker:dind]
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+  only: [main]
+
+test:
+  stage: test
+  image: python:3.12
+  script:
+    - pip install -r requirements.txt pytest pytest-cov
+    - pytest --cov=app
+  artifacts:
+    paths: [htmlcov/]
+
+deploy:
+  stage: deploy
+  when: manual
+  script:
+    - docker service update \
+        --image "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" \
+        taskboard_web
+
+mirror:
+  stage: mirror
+  image: alpine/git
+  before_script:
+    - mkdir -p ~/.ssh
+    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
+    - chmod 600 ~/.ssh/id_ed25519_mirror
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+  script:
+    - git remote add github ssh://git@github.com:theunrealryan/devops-api-flask.git || true
+    - git push github main
+  only: [main]
 ```
 
-A combinação **Docker-in-Docker** + Runner em modo `privileged` é recomendada para builds de imagem ([docs.gitlab.com][3]).
+* **Build**: constrói e envia imagem
+* **Test**: executa pytest + cobertura
+* **Deploy**: atualiza serviço Swarm (manual)
+* **Mirror**: replica no GitHub via SSH
 
 ---
 
 ## ⚓ Deploy em Docker Swarm
 
 ```bash
-# no nó manager
+# Inicializar Swarm
 docker swarm init --advertise-addr <IP_MANAGER>
 
-# criar rede overlay
-docker network create --driver overlay taskboard_net
-
-# deploy inicial
+# Deploy da stack
 docker stack deploy -c docker-compose.yml taskboard
-docker service ls            # confere réplicas
 
-# rolling update (zero-downtime)
-docker service update --image $REGISTRY/taskboard:latest \
-                      --update-delay 10s taskboard_web
+# Escalar réplicas
+docker service scale taskboard_web=3
+
+# Rolling update
+docker service update \
+  --image "$CI_REGISTRY_IMAGE:latest" \
+  --update-delay 10s \
+  taskboard_web
 ```
-
-O Swarm gerencia escala, auto-recuperação e rollback automático ([docs.docker.com][4]).
 
 ---
 
-## 🧪 Testes
+## 🧪 Testes e Cobertura
 
 ```bash
 pip install -r requirements.txt pytest pytest-cov
 pytest --cov=app
 ```
 
-Os relatórios de cobertura são publicados como *artifacts* no pipeline ([docs.gitlab.com][5]).
+* Cobertura mínima: **80%**
+* Relatórios em `htmlcov/` disponíveis como artifact no pipeline.
 
 ---
 
-## 🤝 Como contribuir
+## 🤝 Contribuições
 
-1. Crie um *fork* e uma branch `feature/<sua-feature>`.
-2. Envie *Merge Request* seguindo o template.
-3. Garanta pipeline verde + cobertura ≥ 80 %.
-4. Será feita revisão de código assíncrona.
+1. Fork e branch `feature/<nome>`
+2. Commit e push
+3. Abra Merge Request
+4. Aguarde revisão e aprovação
 
 ---
 
 ## 📜 Licença
 
-Distribuído sob a licença **MIT** – consulte `LICENSE` para mais detalhes.
+MIT © [Ryan Ricardo de Souza](https://gitlab.com/theunrealryan)
 
 ---
 
-## 🙋‍♀️ Créditos
+## 📚 Referências
 
-Inspirado na documentação oficial do Flask ([flask.palletsprojects.com][6]) e nos guias de **Docker** ([docs.docker.com][7]) e **GitLab CI/CD** ([docs.gitlab.com][8]). Agradecimentos à comunidade DevOps que mantém essas ferramentas incríveis!
+* Flask Quickstart: [https://flask.palletsprojects.com/](https://flask.palletsprojects.com/)
+* Docker Compose: [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
+* Docker Swarm: [https://docs.docker.com/engine/swarm/](https://docs.docker.com/engine/swarm/)
+* GitLab CI/CD: [https://docs.gitlab.com/](https://docs.gitlab.com/)
 
 ---
 
-*“Automate all the things, but entenda cada passo.”*
-
-```
-::contentReference[oaicite:16]{index=16}
-```
-
-[1]: https://docs.docker.com/compose/gettingstarted/?utm_source=chatgpt.com "Docker Compose Quickstart"
-[2]: https://docs.docker.com/get-started/docker-concepts/building-images/multi-stage-builds/?utm_source=chatgpt.com "Multi-stage builds - Docker Docs"
-[3]: https://docs.gitlab.com/ci/docker/using_docker_images/?utm_source=chatgpt.com "Run your CI/CD jobs in Docker containers - GitLab Docs"
-[4]: https://docs.docker.com/engine/swarm/swarm-tutorial/rolling-update/?utm_source=chatgpt.com "Apply rolling updates to a service - Docker Docs"
-[5]: https://docs.gitlab.com/ci/quick_start/?utm_source=chatgpt.com "Tutorial: Create and run your first GitLab CI/CD pipeline"
-[6]: https://flask.palletsprojects.com/en/stable/quickstart/?utm_source=chatgpt.com "Quickstart — Flask Documentation (3.1.x)"
-[7]: https://docs.docker.com/get-started/docker-concepts/running-containers/multi-container-applications/?utm_source=chatgpt.com "Multi-container applications - Docker Docs"
-[8]: https://docs.gitlab.com/ci/examples/?utm_source=chatgpt.com "GitLab CI/CD examples"
+*“Automate all the things, but understand each step.”*
