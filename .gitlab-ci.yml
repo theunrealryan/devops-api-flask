@@ -29,8 +29,10 @@ test:
     - pip install -e .
     - pytest --cov=app
   artifacts:
-    paths:
-      - htmlcov/
+    when: always
+    reports:
+      coverage_report: coverage.xml
+
 
 deploy:
   stage: deploy
