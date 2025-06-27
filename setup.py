@@ -1,14 +1,17 @@
 from setuptools import setup
 
 with open("requirements.txt") as f:
-    requirements = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    requirements = [
+        line.strip() for line in f
+        if line.strip() and not line.startswith("#")
+    ]
 
 setup(
     name="taskboard",
     version="0.1.0",
     description="A simple task-board API built with Flask",
     author="Ryan Ricardo de Souza",
-    author_email="you@example.com",
+    author_email="ryanricardodesouza.dev@gmail.com",
     url="https://gitlab.com/devops-api-flask/devops-api-flask",
     py_modules=["app"],
     install_requires=requirements,

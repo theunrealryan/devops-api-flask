@@ -26,14 +26,17 @@ test:
   image: python:3.12
   script:
     - pip install -r requirements.txt pytest pytest-cov
-    - pytest --cov=app --cov-report xml      
+    - pip install -e .                  
+    - pytest --cov=app --cov-report xml     
   artifacts:
     paths:
-      - coverage.xml                        
+      - coverage.xml                         
     reports:
       coverage_report:
-        coverage_format: cobertura          
-        path: coverage.xml                           
+        coverage_format: cobertura
+        path: coverage.xml                    
+  only:
+    - main
 
 deploy:
   stage: deploy
@@ -43,11 +46,11 @@ deploy:
         --image "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" \
         taskboard_web
 
-mmirror:
+mirror:
   stage: mirror
-  image: docker:latest     
+  image: docker:latest
   before_script:
-    - apk add --no-cache openssh-client git                    
+    - apk add --no-cache openssh-client git
     - mkdir -p ~/.ssh
     - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
