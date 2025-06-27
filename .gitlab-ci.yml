@@ -57,7 +57,7 @@ mirror:
   script:
     # Adiciona remoto GitHub (ignora se já existir)
     - git remote add github ssh://git@github.com:theunrealryan/devops-api-flask.git || true
-    # Garante que a branch main exista
+    # Assegura que a branch main exista (cria-a se for o primeiro push)
     - git fetch github main || git push github main
     # Espelha a branch main
     - git push github main
