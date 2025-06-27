@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # DevOps API Flask 🚀
 
 [![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
