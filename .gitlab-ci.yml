@@ -40,14 +40,13 @@ mirror:
   stage: mirror
   image: alpine/git
   before_script:
-    # configura o SSH para o GitHub
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=~/.ssh/known_hosts"
   script:
-    # adiciona o remoto GitHub (se ainda não existir) e empurra a main
-    - git remote add github git@github.com:theunrealryan/devops-api-flask.git || true
+    - git remote add github ssh://git@github.com:theunrealryan/devops-api-flask.git || true
     - git push github main
   only:
     - main
