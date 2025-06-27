@@ -1,40 +1,39 @@
 ## DevOps API Flask 🚀
 
-[![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)  
+[![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
 [![coverage report](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/coverage.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/graphs/main/charts)
 
 Uma API de gerenciamento de tarefas escrita em **Flask**, empacotada em **Docker** e orquestrada com **Docker Compose** (local), **Docker Swarm** (produção) e **GitLab CI/CD** (pipeline).
 
-> _“Build once, run everywhere”_ — código, testes, container, deploy e monitoramento em um fluxo contínuo.
+> *“Build once, run everywhere”* — código, testes, container, deploy e monitoramento em um fluxo contínuo.
 
 ---
 
 ### ✨ Funcionalidades
 
-- **CRUD de tarefas** em JSON via rota `/tasks`  
-- **Testes automatizados** com `pytest` e cobertura ≥ 80%  
-- **Imagem Docker multi-stage** para build enxuto e seguro  
-- **Ambiente local** com Docker Compose  
-- **Escalonamento** e **rolling updates** em Docker Swarm  
-- **Pipeline GitLab CI/CD**: build, test, push e deploy  
+* **CRUD de tarefas** em JSON via rota `/tasks`
+* **Testes automatizados** com `pytest` e cobertura ≥ 80%
+* **Imagem Docker multi-stage** para build enxuto e seguro
+* **Ambiente local** com Docker Compose
+* **Escalonamento** e **rolling updates** em Docker Swarm
+* **Pipeline GitLab CI/CD**: build, test, push e deploy
 
 ---
 
 ### 🏗️ Pré-requisitos
 
-| Ferramenta     | Versão mínima | Observações                          |
-|----------------|---------------|--------------------------------------|
-| Python         | 3.11          | Recomenda-se virtualenv/venv         |
-| Docker Engine  | 26.x          |                                      |
-| Docker Compose | v2            | Plugin integrado no Docker Desktop   |
-| GitLab Runner  | 17.x          | Com Docker-in-Docker habilitado      |
+| Ferramenta     | Versão mínima | Observações                        |
+| -------------- | ------------- | ---------------------------------- |
+| Python         | 3.11          | Recomenda-se virtualenv/venv       |
+| Docker Engine  | 26.x          |                                    |
+| Docker Compose | v2            | Plugin integrado no Docker Desktop |
+| GitLab Runner  | 17.x          | Com Docker-in-Docker habilitado    |
 
 ---
 
 ### 🗂️ Estrutura do Projeto
 
 ```
-
 taskboard/
 ├── app.py               # Código principal da API Flask
 ├── requirements.txt     # Dependências Python
@@ -43,9 +42,8 @@ taskboard/
 ├── .gitlab-ci.yml       # Pipeline GitLab CI/CD
 ├── pytest.ini           # Configuração do pytest & cobertura
 └── tests/               # Testes automatizados (pytest)
-└── test\_api.py
-
-````
+    └── test_api.py
+```
 
 ---
 
@@ -64,7 +62,7 @@ curl -X POST http://localhost:5000/tasks \
   -H "Content-Type: application/json" \
   -d '{"title":"Estudar DevOps"}'
 curl http://localhost:5000/tasks
-````
+```
 
 ---
 
