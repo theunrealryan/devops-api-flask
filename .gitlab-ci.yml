@@ -42,10 +42,11 @@ deploy:
         --image "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" \
         taskboard_web
 
-mirror:
+mmirror:
   stage: mirror
-  image: alpine/git
+  image: docker:latest     
   before_script:
+    - apk add --no-cache openssh-client git                    
     - mkdir -p ~/.ssh
     - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
