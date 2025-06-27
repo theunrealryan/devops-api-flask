@@ -13,17 +13,16 @@ build:
   services:
     - docker:dind
   variables:
-    # Faz com que o docker-in-docker espelhe seu Docker config
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   script:
-    # 1) Login no GitLab Container Registry
+    # 1) Login no GitLab Registry
     - docker login registry.gitlab.com \
         -u "$CI_REGISTRY_USER" \
         -p "$CI_REGISTRY_PASSWORD"
     # 2) Build e tag
     - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
-    # 3) Push para o Registry autenticado
+    # 3) Push autenticado
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
   only:
     - main
