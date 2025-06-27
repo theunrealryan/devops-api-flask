@@ -14,10 +14,12 @@ build:
   services:
     - docker:dind
   script:
-    # Agrupa login, build e push num único bloco shell para não quebrar o comando
     - |
+      # Login no GitLab Container Registry
       docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" registry.gitlab.com
+      # Build da imagem com tag de commit
       docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" .
+      # Push da imagem para o registry
       docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
   only:
     - main
@@ -44,21 +46,15 @@ mirror:
   stage: mirror
   image: alpine/git
   before_script:
-    # Prepara diretório SSH
+    # Prepara SSH para o GitHub
     - mkdir -p ~/.ssh
-    # Injeta a chave privada do CI (tipo File) em id_ed25519_mirror
     - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
-    # Adiciona fingerprint do GitHub para evitar prompt interativo
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    # Configura o Git para usar a chave de espelhamento
     - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
   script:
-    # Adiciona remoto GitHub (ignora se já existir)
     - git remote add github ssh://git@github.com:theunrealryan/devops-api-flask.git || true
-    # Garante existência da branch main no GitHub
     - git fetch github main || git push github main
-    # Espelha a branch main
     - git push github main
   only:
     - main
