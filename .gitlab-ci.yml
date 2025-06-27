@@ -26,13 +26,15 @@ test:
   image: python:3.12
   script:
     - pip install -r requirements.txt pytest pytest-cov
-    - pip install -e .
-    - pytest --cov=app
+    - coverage run -m pytest              
+    - coverage xml                        
   artifacts:
-    when: always
+    paths:
+      - coverage.xml                    
     reports:
-      coverage_report: coverage.xml
-
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml               
 
 deploy:
   stage: deploy
