@@ -20,7 +20,7 @@ Uma API de gerenciamento de tarefas escrita em **Flask**, empacotada em **Docker
 
 ---
 
-### 🏗️ Pré-requisitos
+### 🏗️ Requisitos
 
 | Ferramenta     | Versão mínima | Observações                        |
 | -------------- | ------------- | ---------------------------------- |
