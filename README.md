@@ -17,7 +17,7 @@ Uma API de gerenciamento de tarefas em **Flask**, empacotada em **Docker**, orqu
 - **Ambiente local** pronto com **Docker Compose**  
 - **Escalonamento** e **rolling updates** em **Docker Swarm**  
 - **Pipeline CI/CD** no GitLab para build, testes, push e deploy automático  
-- **Espelhamento (Mirror)** [unidirecional para GitHub](https://github.com/theunrealryan/devops-api-flask), com possível futura opção **bidirecional** (via GitLab EE/Premium ou webhooks)
+- **Espelhamento (Mirror)** [unidirecional para GitHub](https://github.com/theunrealryan/devops-api-flask), com possível opção **bidirecional** (via GitLab EE/Premium ou webhooks)
 
 ---
 
