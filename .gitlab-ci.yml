@@ -58,7 +58,7 @@ mirror:
     - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
   script:
     - git remote add github git@github.com:theunrealryan/devops-api-flask.git || true
-    - git push github HEAD:main
+    - git push --force github HEAD:main
   only:
     - main
   when: on_success
