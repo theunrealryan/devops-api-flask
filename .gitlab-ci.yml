@@ -48,17 +48,24 @@ deploy:
 
 mirror:
   stage: mirror
-  image: docker:latest
+  image: alpine/git
   before_script:
     - apk add --no-cache openssh-client git
     - mkdir -p ~/.ssh
     - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+    - git config --global core.sshCommand \
+        "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
   script:
-    - git remote add github git@github.com:theunrealryan/devops-api-flask.git || true
-    - git push --force github HEAD:main
+    - git clone --mirror "${CI_REPOSITORY_URL}" repo.git
+    - cd repo.git
+
+    - git remote add github git@github.com:theunrealryan/devops-api-flask.git
+
+    - git push --mirror github
+
   only:
     - main
   when: on_success
