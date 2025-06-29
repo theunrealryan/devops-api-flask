@@ -50,17 +50,16 @@ mirror:
   stage: mirror
   image: docker:latest
   before_script:
-    - apk add --no-cache openssh-client git           
+    - apk add --no-cache openssh-client git
     - mkdir -p ~/.ssh
     - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
     - chmod 600 ~/.ssh/id_ed25519_mirror
-    - ssh-keyscan github.com >> ~/.ssh/known_hosts 
-    - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror \
-       -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - git config --global core.sshCommand "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
   script:
     - git remote add github git@github.com:theunrealryan/devops-api-flask.git || true
-    - git fetch github main  || git push github main 
-    - git push github main                           
+    - git fetch github main || git push github main
+    - git push github main
   only:
     - main
   when: on_success
