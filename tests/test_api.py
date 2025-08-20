@@ -1,22 +1,27 @@
 import pytest
-from app import app, tasks
+from app import app as flask_app
 
-@pytest.fixture(autouse=True)
-def clear_tasks():
-    tasks.clear()
+@pytest.fixture
+def app():
+    yield flask_app
 
-def test_empty_list():
-    client = app.test_client()
-    resp = client.get("/tasks")
-    assert resp.get_json() == []
+@pytest.fixture
+def client(app):
+    """Um cliente de teste para a aplicação."""
+    return app.test_client()
 
-def test_add_task():
-    client = app.test_client()
-    new_task = {"id": 1, "title": "Teste"}
-    resp = client.post("/tasks", json=new_task)
-    assert resp.status_code == 201
-    assert resp.get_json() == {"msg": "ok"}
+def test_hello_world(cimport pytest
+from app import app as flask_app
 
-    resp2 = client.get("/tasks")
-    assert resp2.status_code == 200
-    assert resp2.get_json() == [new_task]
+@pytest.fixture
+def app():
+    yield flask_app
+
+@pytest.fixture
+def client(app):
+    """Um cliente de teste para a aplicação."""
+    return app.test_clientlient):
+    """Testa o endpoint principal '/'."""
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b"Hello World" in response.data
