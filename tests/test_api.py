@@ -16,4 +16,4 @@ def test_get_tasks(client):
     assert response.status_code == 200
     assert response.is_json
     json_data = response.get_json()
-    assert "tasks" in json_data
+    assert isinstance(json_data, list)
