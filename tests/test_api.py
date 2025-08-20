@@ -10,8 +10,10 @@ def client(app):
     """Um cliente de teste para a aplicação."""
     return app.test_client()
 
-def test_hello_world(client):
-    """Testa o endpoint principal '/'."""
-    response = client.get('/')
+def test_get_tasks(client):
+    """Testa o endpoint para obter todas as tarefas ('/tasks')."""
+    response = client.get('/tasks')
     assert response.status_code == 200
-    assert b"Hello World" in response.data
+    assert response.is_json
+    json_data = response.get_json()
+    assert "tasks" in json_data
