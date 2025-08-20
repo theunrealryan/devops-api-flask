@@ -1,23 +1,19 @@
-# --- Estágio 1: build ---
-FROM python:3.12-slim AS builder
-WORKDIR /src
+# Etapa 1: Usar uma imagem base oficial e leve do Python
+FROM python:3.9-slim
 
-# Copia lista de dependências e instala em diretório de usuário
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
-
-# --- Estágio 2: runtime ---
-FROM python:3.12-alpine
+# Etapa 2: Definir o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Traz as dependências instaladas no builder
-COPY --from=builder /root/.local /root/.local
+# Etapa 3: Copiar o ficheiro de dependências e instalá-las
+# Esta ordem otimiza o cache de build do Docker
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o código da API
+# Etapa 4: Copiar o resto do código da aplicação
 COPY . .
 
-# Ajusta PATH para achar o pip instalado em --user
-ENV PATH=/root/.local/bin:$PATH
+# Etapa 5: Expor a porta em que o Gunicorn irá correr
+EXPOSE 5000
 
-# Comando padrão ao iniciar o container
-CMD ["python", "app.py"]
+# Etapa 6: Comando para executar a aplicação com um servidor de produção
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
