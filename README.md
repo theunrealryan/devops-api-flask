@@ -1,4 +1,4 @@
-## DevOps API Flask 🚀
+## DevOps API Flask gitea 🚀
 
 [![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
 [![coverage report](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/coverage.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/graphs/main/charts)
