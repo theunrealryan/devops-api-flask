@@ -8,6 +8,8 @@ on:
 jobs:
   test:
     runs-on: linux-amd64
+    container:
+      image: python:3.11-slim
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
