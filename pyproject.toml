@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devops-api-flask"
+version = "0.1.0"
+description = "A simple API built with Flask"
+requires-python = ">=3.9"
+dependencies = [
+    "Flask==2.2.2",
+    "gunicorn",
+    "Werkzeug<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools]
+py-modules = ["app"]

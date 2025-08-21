@@ -1,0 +1,4 @@
+Flask==2.2.2
+pytest
+gunicorn
+pytest-cov
