@@ -29,6 +29,8 @@ jobs:
   build-and-push:
     needs: test
     runs-on: linux-amd64
+    container:
+      image: docker:cli
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
