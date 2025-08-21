@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -24,7 +24,7 @@ jobs:
         run: pytest
 
   build-and-push:
-    needs: test # Garante que este job só corre depois dos testes passarem
+    needs: test
     runs-on: linux-amd64
     steps:
       - name: Checkout code
@@ -44,7 +44,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api-flask:latest
 
   deploy:
-    needs: build-and-push # Garante que este job só corre depois do build
+    needs: build-and-push
     runs-on: linux-amd64
     steps:
       - name: Deploy to Swarm
