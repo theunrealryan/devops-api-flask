@@ -8,17 +8,11 @@ on:
 jobs:
   test:
     runs-on: linux-amd64
+    container:
+      image: python:3.11-slim
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Install Python
-        run: |
-          apt-get update
-          apt-get install -y python3 python3-pip python3-venv
-
-      - name: Upgrade packaging tools
-        run: pip install --upgrade pip setuptools
 
       - name: Install dependencies
         run: pip install -e ".[dev]"
