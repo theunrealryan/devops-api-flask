@@ -57,9 +57,6 @@ jobs:
     needs: build-and-push
     runs-on: linux-amd64
     steps:
-      - name: Debug SWARM_USERNAME secret
-        run: |
-          echo "A tentar conectar-se com o utilizador: ${{ secrets.SWARM_USERNAME }}"
       - name: Deploy to Swarm
         uses: appleboy/ssh-action@master
         with:
