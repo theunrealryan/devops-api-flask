@@ -7,14 +7,12 @@ on:
 
 jobs:
   test:
-    runs-on: linux-amd64 # Usa o ambiente padrão do runner, que tem Node.js
+    runs-on: linux-amd64
     steps:
       - name: Checkout code
-        # Esta etapa funciona porque o Node.js está presente.
         uses: actions/checkout@v3
 
       - name: Install Python and Dependencies
-        # Adicionamos o Python e instalamos as dependências do projeto.
         run: |
           apt-get update
           apt-get install -y python3 python3-pip python3-venv
