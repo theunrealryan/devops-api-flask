@@ -7,34 +7,36 @@ on:
 
 jobs:
   test:
-    runs-on: linux-amd64
+    runs-on: linux-amd64 # Começa no ambiente padrão do runner, que tem Node.js
     steps:
       - name: Checkout code
+        # Esta etapa funciona porque o Node.js está presente.
         uses: actions/checkout@v3
 
       - name: Install Python and Dependencies
+        # Adicionamos o Python e as dependências necessárias.
         run: |
           apt-get update
           apt-get install -y python3 python3-pip python3-venv
           python3 -m pip install --upgrade pip setuptools
-          # Instala as dependências da aplicação a partir do ficheiro
+          # Instala as dependências da aplicação e de teste de forma explícita
           python3 -m pip install -r requirements.txt
-          # Instala as dependências de teste separadamente
           python3 -m pip install pytest pytest-cov
 
       - name: Run tests with pytest
-        # Usamos 'python3 -m pytest' para garantir que o pytest correto seja executado
+        # Executa os testes com o Python que acabámos de instalar.
         run: python3 -m pytest
 
   build-and-push:
     needs: test
-    runs-on: linux-amd64
+    runs-on: linux-amd64 # Começa no mesmo ambiente padrão com Node.js
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Esta action oficial prepara o ambiente Docker com o Buildx
       - name: Set up Docker Buildx
+        # Esta é a action oficial para preparar o ambiente para builds Docker.
+        # Ela instala o Docker, o Buildx e configura tudo para os passos seguintes.
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
@@ -49,6 +51,7 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api-flask:latest
+          no-cache: true # Força um build limpo para garantir que as dependências corretas sejam usadas
 
   deploy:
     needs: build-and-push
@@ -65,4 +68,3 @@ jobs:
             docker image pull ${{ secrets.DOCKERHUB_USERNAME }}/devops-api-flask:latest
             docker stack deploy -c docker-compose.yml traefik
             echo "Deploy finalizado com sucesso!"
-
