@@ -52,6 +52,7 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api-flask:latest
+          no-cache: true
 
   deploy:
     needs: build-and-push
