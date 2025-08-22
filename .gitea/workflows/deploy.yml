@@ -18,11 +18,13 @@ jobs:
         run: |
           apt-get update
           apt-get install -y python3 python3-pip python3-venv
-          pip install --upgrade pip setuptools
-          pip install ."[dev]"
+          # Usamos 'python3 -m pip' para garantir que estamos a usar o pip correto
+          python3 -m pip install --upgrade pip setuptools
+          python3 -m pip install ."[dev]"
 
       - name: Run tests with pytest
-        run: pytest
+        # Usamos 'python3 -m pytest' para garantir que o pytest correto seja executado
+        run: python3 -m pytest
 
   build-and-push:
     needs: test
