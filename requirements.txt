@@ -1,5 +1,3 @@
 Flask==2.2.2
-pytest
 gunicorn
-pytest-cov
 Werkzeug<3.0
