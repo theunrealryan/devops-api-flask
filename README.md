@@ -156,31 +156,31 @@ docker compose down -v
 
 ## 🧩 Orquestração: Docker Swarm + Traefik
 
-### 0) Criar a *overlay network* compartilhada (uma vez)
+### 1) Criar a *overlay network* compartilhada (uma vez)
 
 ```bash
 docker network create --driver=overlay --attachable web
 ```
 
-### 1) Inicializar o Swarm (nó manager)
+### 2) Inicializar o Swarm (nó manager)
 
 ```bash
 docker swarm init --advertise-addr <IP_MANAGER>
 ```
 
-### 2) Deploy da stack
+### 3) Deploy da stack
 
 ```bash
 docker stack deploy -c docker-compose.yml devops
 ```
 
-### 3) Escalar a API (exemplo)
+### 4) Escalar a API (exemplo)
 
 ```bash
 docker service scale devops_api=3
 ```
 
-### 4) Atualizar imagem (rolling update) e rollback
+### 5) Atualizar imagem (rolling update) e rollback
 
 ```bash
 docker service update --image <registry>/devops-api-flask:<tag> devops_api
