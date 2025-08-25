@@ -50,7 +50,8 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/devops-api-flask:latest
-          no-cache: true
+          build-args: |
+            CACHE_BUSTER=${{ gitea.run_id }}
 
   deploy:
     needs: build-and-push
