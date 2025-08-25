@@ -13,7 +13,7 @@ O app de exemplo é uma API em **Flask** (com *health check* em `GET /health`), 
 * [Pré-requisitos](#pre-requisitos)
 * [Guia Rápido (Local)](#guia-rapido-local)
 * [Execução com Docker Compose](#execucao-com-docker-compose)
-* [Orquestração: Docker Swarm + Traefik](#orquestracao-docker-swarm--traefik)
+* [Orquestração: Docker Swarm + Traefik](#orquestracao-docker-swarm-traefik)
 * [CI/CD com Gitea Actions](#cicd-com-gitea-actions)
 * [Estrutura do Repositório](#estrutura-do-repositorio)
 * [Testes e Cobertura](#testes-e-cobertura)
@@ -24,51 +24,55 @@ O app de exemplo é uma API em **Flask** (com *health check* em `GET /health`), 
 
 ---
 
+<a id="arquitetura"></a>
+
 ## 🏛 Arquitetura
 
 A plataforma é composta por serviços containerizados. O **Traefik** executa a terminação TLS/HTTPS, o roteamento dinâmico por *labels* e o *service discovery* do Swarm. *Workflows* do **Gitea Actions** testam, criam e publicam a imagem da API e executam o deploy com *rolling update* no nó *manager* do Swarm.
 
 ```mermaid
-graph TD
-  %% Nós
-  subgraph Dev["👨‍💻 Developer"]
+flowchart TD
+  %% Subgraphs
+  subgraph Dev[Developer]
     D[git push]
   end
 
-  subgraph Gitea["🐙 Gitea (Git + Actions)"]
-    GS[Servidor Gitea]
-    R[Runner (Actions)]
+  subgraph Gitea[Gitea: Git + Actions]
+    GS[Gitea Server]
+    R[Runner]
   end
 
-  subgraph Registry["☁️ Container Registry"]
-    CR[(Registry)]
+  subgraph Registry[Container Registry]
+    CR[Registry]
   end
 
-  subgraph Swarm["🧩 Docker Swarm Cluster"]
-    M[(Manager)]
-    T[Traefik (Edge Router)]
-    A[(Flask API Service)]
+  subgraph Swarm[Docker Swarm Cluster]
+    M[Manager]
+    T[Traefik Edge Router]
+    A[Flask API Service]
   end
 
-  subgraph User["👤 User"]
+  subgraph User[User]
     U[HTTPS Request]
   end
 
-  %% Fluxo CI
+  %% CI flow
   D --> GS
   GS -->|trigger| R
-  R -->|Testes| R_T[pytest]
-  R -->|Build| R_B[docker build]
-  R -->|Push| CR
-  R -->|SSH| M
+  R -->|tests| R_T[pytest]
+  R -->|build| R_B[docker build]
+  R -->|push| CR
+  R -->|ssh| M
   M -->|docker stack deploy| A
 
-  %% Tráfego de runtime
+  %% Runtime flow
   U -->|HTTPS| T
-  T -->|rota /health e API| A
+  T --> A
 ```
 
 ---
+
+<a id="pilha-tecnologica"></a>
 
 ## 🛠️ Pilha Tecnológica
 
@@ -84,6 +88,8 @@ graph TD
 
 ---
 
+<a id="pre-requisitos"></a>
+
 ## ✅ Pré-requisitos
 
 | Ferramenta     | Versão mínima | Verificar                |
@@ -93,9 +99,11 @@ graph TD
 | Docker Engine  | 24.x+         | `docker --version`       |
 | Docker Compose | v2+           | `docker compose version` |
 
-> **Dica:** Garanta que o usuário usado no host *manager* tenha permissão de executar Docker sem `sudo` (ou ajuste os comandos conforme seu ambiente).
+> **Dica:** Garanta que o usuário no host *manager* pode executar Docker sem `sudo` (ou ajuste os comandos).
 
 ---
+
+<a id="guia-rapido-local"></a>
 
 ## 🚀 Guia Rápido (Local)
 
@@ -124,6 +132,8 @@ curl http://localhost:5000/health
 
 ---
 
+<a id="execucao-com-docker-compose"></a>
+
 ## 🐳 Execução com Docker Compose
 
 > Útil para desenvolvimento local com containers e validação da imagem.
@@ -142,11 +152,11 @@ docker compose down -v
 
 ---
 
+<a id="orquestracao-docker-swarm-traefik"></a>
+
 ## 🧩 Orquestração: Docker Swarm + Traefik
 
 ### 0) Criar a *overlay network* compartilhada (uma vez)
-
-> O Traefik e os serviços expostos devem estar **na mesma overlay**.
 
 ```bash
 docker network create --driver=overlay --attachable web
@@ -173,10 +183,7 @@ docker service scale devops_api=3
 ### 4) Atualizar imagem (rolling update) e rollback
 
 ```bash
-# Atualiza a imagem do service para uma nova tag
 docker service update --image <registry>/devops-api-flask:<tag> devops_api
-
-# Se algo falhar, reverter
 docker service update --rollback devops_api
 ```
 
@@ -201,9 +208,11 @@ networks:
     external: true
 ```
 
-> Em Swarm, *labels* de serviços ficam sob `deploy.labels`. Garanta que o Traefik esteja na **mesma overlay network** da API (*web* no exemplo).
+> Em Swarm, *labels* ficam sob `deploy.labels`. Garanta **mesma overlay** entre Traefik e API.
 
 ---
+
+<a id="cicd-com-gitea-actions"></a>
 
 ## 🚦 CI/CD com Gitea Actions
 
@@ -215,8 +224,6 @@ O pipeline (ex.: `.gitea/workflows/deploy.yml`) executa:
 4. **Deploy** no *manager* do Swarm via SSH, com `docker stack deploy -c docker-compose.yml <stack>`.
 
 ### Exemplo de workflow (`.gitea/workflows/deploy.yml`)
-
-> Observação: nos *runners* compatíveis com GitHub Actions (caso do Gitea Actions), use o contexto `github.sha`. Dentro de um `run:`, você acessa via variável de ambiente `GITHUB_SHA`.
 
 ```yaml
 name: Deploy
@@ -253,9 +260,8 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          STACK_NAME: ${{ secrets.STACK_NAME }}            # ex.: devops
-          COMPOSE_FILE: ${{ secrets.COMPOSE_FILE }}        # ex.: docker-compose.yml
-          IMAGE_REPO: devops-api-flask
+          STACK_NAME: ${{ secrets.STACK_NAME }}
+          COMPOSE_FILE: ${{ secrets.COMPOSE_FILE }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
@@ -264,7 +270,7 @@ jobs:
             "IMAGE_TAG=${GITHUB_SHA::7} STACK_NAME=$STACK_NAME docker stack deploy -c $COMPOSE_FILE $STACK_NAME"
 ```
 
-**Secrets sugeridos** (repositório/organização):
+**Secrets sugeridos**:
 
 * `REGISTRY_URL`, `REGISTRY_USERNAME`, `REGISTRY_PASSWORD`
 * `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`
@@ -273,6 +279,8 @@ jobs:
 > **Dica:** versionar imagens com a *tag* baseada no SHA curto do commit (`${GITHUB_SHA::7}`) facilita *rollbacks* reprodutíveis.
 
 ---
+
+<a id="estrutura-do-repositorio"></a>
 
 ## 📁 Estrutura do Repositório
 
@@ -290,13 +298,11 @@ jobs:
 └─ LICENSE                # MIT
 ```
 
-> Se você usar outro provedor de CI (GitLab CI, etc.), adicione o arquivo correspondente e ajuste instruções.
-
 ---
 
-## 🧪 Testes e Cobertura
+<a id="testes-e-cobertura"></a>
 
-Executar localmente (fora de Docker):
+## 🧪 Testes e Cobertura
 
 ```bash
 python3 -m venv .venv
@@ -311,6 +317,8 @@ pytest --cov=app
 * Publique o *coverage* no pipeline e **falhe** *builds* abaixo de um limiar mínimo (ex.: 80%).
 
 ---
+
+<a id="configuracao-env"></a>
 
 ## ⚙️ Configuração (.env)
 
@@ -330,9 +338,11 @@ Variáveis comuns:
 | `REGISTRY_URL` | `registry.local:5000` | Registry para *push* da imagem.                                   |
 | `STACK_NAME`   | `devops`              | Nome lógico da *stack* no Swarm.                                  |
 
-> **Importante:** não *commitar* `.env`. Use **Secrets** no Gitea para credenciais e chaves.
+> **Importante:** não *commitar* `.env`. Use **Secrets** no Gitea para credenciais/chaves.
 
 ---
+
+<a id="boas-praticas-de-seguranca"></a>
 
 ## 🔐 Boas Práticas de Segurança
 
@@ -340,20 +350,24 @@ Variáveis comuns:
 * **Menor privilégio** no host *manager* (evite `root` e chaves amplas).
 * **TLS por padrão** via Traefik (certificados válidos e *entrypoints* seguros).
 * **Rollback** pronto para qualquer atualização (Swarm suporta rollback manual).
-* **Pin de versão** em imagens base no `Dockerfile` (evita *breakages* silenciosos).
-* **Dependências auditadas**: atualize `requirements.txt` periodicamente e fixe versões.
+* **Pin de versão** no `Dockerfile` (evita *breakages* silenciosos).
+* **Dependências auditadas**: fixe/atualize `requirements.txt` periodicamente.
 
 ---
+
+<a id="troubleshooting"></a>
 
 ## 🛟 Troubleshooting
 
-* **Traefik não roteia** → verifique *labels* sob `deploy.labels` e a **overlay network** compartilhada.
-* **Rolling update travado** → `docker service ps <service>` e `docker service logs <service>`. Se preciso, `docker service update --rollback`.
-* **/health falha** → mantenha o *health check* leve (sem dependências externas) para evitar reinícios em cascata.
-* **Falha ao acessar registry** → confirme DNS/porta, `docker login` e permissões de *push*.
-* **Rede overlay inexistente** → crie com `docker network create --driver=overlay --attachable web` (e conecte Traefik + serviços).
+* **Traefik não roteia** → verifique *deploy.labels* e a **overlay network** compartilhada.
+* **Rolling update travado** → `docker service ps <service>` e `docker service logs <service>`; se preciso, `docker service update --rollback`.
+* **/health falha** → *health check* leve (sem dependências externas) para evitar reinícios em cascata.
+* **Falha no registry** → cheque DNS/porta, `docker login` e permissões de *push*.
+* **Overlay ausente** → `docker network create --driver=overlay --attachable web` e conecte Traefik + serviços.
 
 ---
+
+<a id="licenca"></a>
 
 ## 📄 Licença
 
