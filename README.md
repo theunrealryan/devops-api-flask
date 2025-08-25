@@ -1,215 +1,74 @@
-## DevOps API Flask 🚀
+DevOps API Flask: Uma Esteira de CI/CD Auto-hospedadaEste projeto demonstra a construção de uma plataforma de entrega de software moderna, segura e automatizada, utilizando um ecossistema de ferramentas totalmente auto-hospedado. O núcleo é uma API de gerenciamento de tarefas em Flask, mas o foco principal é a arquitetura de DevOps que a suporta, seguindo os princípios de Infraestrutura como Código (IaC).O objetivo é servir como um template prático de uma esteira de CI/CD completa, onde desde o versionamento do código até o deploy em produção com zero downtime é gerenciado por ferramentas sob seu controle, orquestradas em um cluster Docker Swarm.Arquitetura do SistemaA arquitetura é composta por componentes containerizados que trabalham em conjunto para automatizar o ciclo de vida da aplicação. O Traefik atua como o ponto de entrada, gerenciando o tráfego, a segurança (HTTPS) e o roteamento para todos os serviços.Snippet de códigograph TD
+    subgraph "Developer"
+        Dev(Developer)
+    end
 
-[![pipeline status](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/pipeline.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/pipelines)
-[![coverage report](https://gitlab.com/devops-api-flask/devops-api-flask/badges/main/coverage.svg)](https://gitlab.com/devops-api-flask/devops-api-flask/-/graphs/main/charts)
+    subgraph "External Services"
+        Registry(Container Registry)
+    end
 
-Uma API de gerenciamento de tarefas em **Flask**, empacotada em **Docker**, orquestrada com **Docker Compose** (local), **Docker Swarm** (produção) e com **GitLab CI/CD** para integração e deploy contínuos.
+    subgraph "User"
+        User(User)
+    end
 
-> _“Build once, run everywhere”_ — código, testes, imagem de container, deploy e monitoramento em um fluxo automatizado.
+    subgraph "Self-Hosted Cluster (Docker Swarm)"
+        Gitea
+        Runner
+        Traefik
+        Manager
+        API
+    end
 
----
+    Dev -- git push --> Gitea
+    Gitea -- triggers workflow --> Runner
+    
+    Runner -- 1. Runs Tests --> Runner
+    Runner -- 2. Builds Image --> Runner
+    Runner -- 3. Pushes Image --> Registry
+    Runner -- 4. Connects via SSH --> Manager
+    
+    Manager -- docker stack deploy --> API
 
-## ✨ Funcionalidades
+    User -- HTTPS Request --> Traefik
+    Traefik -- routes to --> Gitea
+    Traefik -- routes to --> API
+Pilha TecnológicaComponenteTecnologiaDescriçãoControle de VersãoGiteaServidor Git leve e auto-hospedado, que também atua como o acionador do pipeline.CI/CDGitea ActionsExecuta os workflows de automação (testar, construir, publicar e implantar).Reverse ProxyTraefikRoteador de borda que gerencia o tráfego de entrada, HTTPS e a descoberta de serviços.BackendPython 3.11+, FlaskFramework web para a construção da API RESTful.ContainerizaçãoDocker Engine, Docker ComposeEmpacotamento da aplicação e de toda a infraestrutura em containers.OrquestraçãoDocker SwarmOrquestração dos containers em produção para escalabilidade e alta disponibilidade.TestesPytest, Pytest-CovFramework para garantir a qualidade do código e medir a cobertura.Pré-requisitos e VerificaçãoFerramentaVersão MínimaPropósito no ProjetoComando de VerificaçãoGit2.20+Sistema de controle de versão para gerenciar o código-fonte.git --versionPython3.11+Linguagem e runtime principal para a API Flask.python3 --versionDocker Engine26.x+Plataforma para construir, executar e gerenciar containers.docker --versionDocker Composev2+Ferramenta para definir e executar aplicações Docker multi-container.docker compose versionGuia de Início Rápido (Desenvolvimento Local)Siga estes passos para configurar e executar o projeto em seu ambiente local.1. Clonar o RepositórioBashgit clone <URL_DO_SEU_REPOSITORIO_GITEA>
+cd devops-api-flask
+2. Configurar o AmbienteCopie o arquivo de exemplo .env.example para criar sua configuração local.Bashcp.env.example.env
+Revise o arquivo .env para ajustar portas ou outras configurações, se necessário.3. Iniciar os ContainersUtilize o Docker Compose para construir a imagem e iniciar o container da aplicação.Bashdocker compose up --build -d
+4. Verificar a ExecuçãoBash# Verifique se o container está com o status "Up"
+docker ps
 
-- **CRUD completo** de tarefas via rota `/tasks` (JSON)  
-- **Testes automatizados** com **pytest** e cobertura ≥ 80%  
-- **Build Docker multi-stage** para imagem enxuta e segura  
-- **Ambiente local** pronto com **Docker Compose**  
-- **Escalonamento** e **rolling updates** em **Docker Swarm**  
-- **Pipeline CI/CD** no GitLab para build, testes, push e deploy automático  
-- **Espelhamento (Mirror)** [unidirecional para GitHub](https://github.com/theunrealryan/devops-api-flask), com possível opção **bidirecional** (via GitLab EE/Premium ou webhooks)
-
----
-
-## 🏗️ Pré-requisitos
-
-| Ferramenta        | Versão mínima | Observações                           |
-|-------------------|---------------|---------------------------------------|
-| Python            | 3.11          | Use virtualenv ou venv                |
-| Flask             | 3.x           |                                       |
-| Docker Engine     | 26.x          |                                       |
-| Docker Compose    | v2            |                                       |
-| Docker Swarm      | integrado     |                                       |
-| GitLab Runner     | 17.x          | com DIND habilitado                   |
-| Git               | 2.20+         |                                       |
-| Pytest            | 8.x           | pytest-cov para cobertura             |
-
----
-
-## 🗂️ Estrutura do Projeto
-
-```text
-taskboard/
-├── app.py                 # API Flask principal
-├── requirements.txt       # Dependências Python
-├── setup.py               # Metadados do pacote (entrypoint “taskboard”)
-├── Dockerfile             # Build multi-stage
-├── docker-compose.yml     # Compose para dev local
-├── .gitlab-ci.yml         # CI/CD pipeline
-├── pytest.ini             # Configuração pytest & cobertura
-└── tests/                 # Testes (pytest)
-    └── test_api.py
-````
-
----
-
-## 🚀 Desenvolvimento Local
-
-1. Clone o repositório e acesse o diretório:
-
-   ```bash
-   git clone https://gitlab.com/devops-api-flask/devops-api-flask.git
-   cd devops-api-flask
-   ```
-2. Crie e ative o ambiente virtual:
-
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. Inicialize containers com Docker Compose:
-
-   ```bash
-   docker compose up --build -d
-   ```
-4. Teste a API:
-
-   ```bash
-   curl -X POST http://localhost:5000/tasks \
-     -H "Content-Type: application/json" \
-     -d '{"title":"Estudar DevOps"}'
-   curl http://localhost:5000/tasks
-   ```
-
----
-
-## 🐳 Dockerfile (Multi-stage)
-
-```dockerfile
-# Stage 1: build
-FROM python:3.12-slim AS builder
-WORKDIR /src
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
-
-# Stage 2: runtime
-FROM python:3.12-alpine
-WORKDIR /app
-COPY --from=builder /root/.local /root/.local
-COPY . .
-ENV PATH="/root/.local/bin:$PATH"
-CMD ["taskboard"]
-```
-
----
-
-## 🐝 GitLab CI/CD (`.gitlab-ci.yml`)
-
-```yaml
-stages:
-  - build
-  - test
-  - deploy
-  - mirror
-
-variables:
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
-
-build:
-  stage: build
-  image: docker:latest
-  services: [docker:dind]
-  script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - docker build -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
-  only: [main]
-
-test:
-  stage: test
-  image: python:3.12
-  script:
-    - pip install -r requirements.txt pytest pytest-cov
-    - pytest --cov=app --cov-report=xml
-  artifacts:
-    paths: [coverage.xml]
-    reports:
-      coverage_report: coverage.xml
-
-deploy:
-  stage: deploy
-  when: manual
-  script:
-    - docker service update \
-        --image "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" \
-        taskboard_web
-
-mirror:
-  stage: mirror
-  image:
-    name: alpine/git
-    entrypoint: ["/bin/sh"]
-  before_script:
-    - apk add --no-cache openssh-client git
-    - mkdir -p ~/.ssh
-    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_ed25519_mirror
-    - chmod 600 ~/.ssh/id_ed25519_mirror
-    - ssh-keyscan github.com >> ~/.ssh/known_hosts
-    - git config --global core.sshCommand \
-        "ssh -i ~/.ssh/id_ed25519_mirror -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
-  script:
-    - git clone --mirror "${CI_REPOSITORY_URL}" repo.git
-    - cd repo.git
-    - git remote add github git@github.com:theunrealryan/devops-api-flask.git || true
-    - git push --mirror github
-  only: [main]
-```
-
----
-
-## ⚓ Docker Swarm
-
-```bash
-# 1. Inicie o Swarm (manager)
+# Verifique o endpoint de saúde da aplicação (health check)
+curl http://localhost:5000/health
+# Resposta esperada: {"status": "healthy"}
+Estrutura do Projeto.
+├──.gitea/workflows/       # Workflows de CI/CD para Gitea Actions
+│   └── deploy.yml
+├── tests/                  # Suíte de testes (pytest)
+│   └── test_api.py
+├── app.py                  # Aplicação principal da API Flask
+├── docker-compose.yml      # Definição da stack para Docker Swarm/Compose
+├── Dockerfile              # Arquivo de build Docker multi-stage
+├── LICENSE                 # Licença do projeto (MIT)
+├── pyproject.toml          # Metadados do projeto e configuração de build
+├── pytest.ini              # Configuração para o pytest
+└── requirements.txt        # Dependências Python
+Pipeline de CI/CD com Gitea ActionsO coração da automação está no arquivo .gitea/workflows/deploy.yml. O pipeline é acionado a cada push no branch main e executa os seguintes passos:Test: A suíte de testes unitários é executada com pytest para validar a integridade do código.Build: Uma nova imagem Docker da aplicação é construída, utilizando a estratégia multi-stage para garantir uma imagem final enxuta e segura.Push: A imagem recém-construída é enviada para um registro de contêineres (como o Docker Hub).Deploy: O Gitea Runner se conecta ao nó manager do Docker Swarm via SSH e executa o comando docker stack deploy, que instrui o Swarm a atualizar o serviço da API com a nova imagem, realizando um rolling update sem downtime.Deploy e Orquestração com Docker Swarm e TraefikNesta arquitetura, o Docker Swarm orquestra não apenas a API, mas toda a plataforma (Gitea, Runner, etc.), enquanto o Traefik gerencia o acesso a esses serviços.Infraestrutura como Código: O arquivo docker-compose.yml define toda a stack. O deploy inicial e as atualizações são gerenciados pelo comando docker stack deploy.Descoberta de Serviços: Traefik detecta automaticamente os serviços em execução no Swarm (através de labels do Docker) e cria as rotas de acesso para eles.Rolling Updates: Quando o pipeline de CI/CD aciona um docker stack deploy, o Swarm atualiza os containers da API de forma gradual (rolling update), garantindo que a aplicação permaneça disponível durante a atualização.Comandos de Gerenciamento do SwarmBash# 1. Inicie o Swarm (se ainda não o fez)
 docker swarm init --advertise-addr <IP_MANAGER>
 
-# 2. Deploy da stack
-docker stack deploy -c docker-compose.yml taskboard
+# 2. Deploy inicial da stack completa
+docker stack deploy -c docker-compose.yml nome-da-stack
 
-# 3. Escalone para 3 réplicas
-docker service scale taskboard_web=3
+# 3. Escalone um serviço específico (ex: a API)
+docker service scale nome-da-stack_api=3
+Estratégia de TestesA qualidade do código é garantida por uma suíte de testes automatizados utilizando pytest.Executando Testes LocalmenteBash# Crie e ative um ambiente virtual
+python3 -m venv.venv
+source.venv/bin/activate
 
-# 4. Rolling update
-docker service update \
-  --image "$CI_REGISTRY_IMAGE:latest" \
-  --update-delay 10s \
-  taskboard_web
-```
-
----
-
-
-## 🧪 Testes & Cobertura
-
-```bash
+# Instale as dependências
 pip install -r requirements.txt pytest pytest-cov
-pytest --cov=app --cov-report=xml
-```
 
-* Cobertura mínima: **80%**
-* Artefato `coverage.xml` publicado no GitLab
-
----
-
-
-
-## 📜 Licença
-
-MIT © [Ryan Ricardo de Souza](https://gitlab.com/theunrealryan)
-
----
-
-*“Automate all the things, but understand each step.”*
-
+# Execute os testes
+pytest --cov=app
+LicençaEste projeto está licenciado sob a Licença MIT. Veja o arquivo LICENSE para mais detalhes.“Automate all the things, but understand each step.”
