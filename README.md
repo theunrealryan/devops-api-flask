@@ -1,4 +1,3 @@
-````markdown
 # 🐙 DevOps API Flask — Esteira de CI/CD 100% Auto-hospedada
 
 > Template prático de **entrega contínua** com **Flask** + **Docker/Swarm** + **Traefik** + **Gitea Actions**, seguindo **Infraestrutura como Código (IaC)** e realizando *rolling updates* sem downtime.
@@ -65,7 +64,7 @@ graph TD
   U -->|HTTPS| T
   T -->|routes| A
   T -->|routes| G
-````
+
 
 ---
 
