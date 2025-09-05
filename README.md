@@ -9,7 +9,7 @@ A aplicação de exemplo é uma API em **Flask** (com *health check* em `GET /he
 ## 📚 Sumário
 
 * [Arquitetura](#arquitetura)
-* [Pilha Tecnológica](#pilha-tecnologica)
+* [Stack Tecnológica](#stack-tecnologica)
 * [Observabilidade (Métricas e Logs)](#observabilidade)
 * [Pré-requisitos](#pre-requisitos)
 * [Guia Rápido (Local)](#guia-rapido-local)
@@ -91,9 +91,9 @@ flowchart TD
 
 ---
 
-<a id="pilha-tecnologica"></a>
+<a id="stack-tecnologica"></a>
 
-## 🛠️ Pilha Tecnológica
+## 🛠️ Stack Tecnológica
 
 | Componente             | Tecnologia                            | O que faz                                                         |
 | ---------------------- | ------------------------------------- | ----------------------------------------------------------------- |
