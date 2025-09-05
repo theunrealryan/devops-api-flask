@@ -2,7 +2,7 @@
 
 > Template prático de **entrega contínua** com **Flask** + **Docker/Swarm** + **Traefik** + **Gitea Actions**, seguindo **Infraestrutura como Código (IaC)** e realizando *rolling updates* sem downtime.
 
-A aplicação de exemplo é uma API em **Flask** (com *health check* em `GET /health`), mas o foco é a **arquitetura DevOps**: do `git push` ao deploy em produção, usando ferramentas **sob seu controle** em um cluster **Docker Swarm** com **Traefik** na borda.
+A aplicação de exemplo é uma API em **Flask** (com *health check* em `GET /health`), mas o foco é a **arquitetura DevOps**: do `git push` ao deploy em produção, usando ferramentas **sob total controle** em um cluster **Docker Swarm** com **Traefik** na borda e observabilidade com **Prometheus, Loki e Grafana**.
 
 ---
 
@@ -475,15 +475,13 @@ cp .env.example .env
 
 Variáveis comuns:
 
-| Variável     | Exemplo      | Uso                        |
-| ------------ | ------------ | -------------------------- |
-| `FLASK_ENV`  | `production` | Modo de execução do Flask. |
-| `FLASK_HOST` | \`0          |                            |
-
-
-.0.0.0`            | Host de *bind* do servidor.                                       |
-|`FLASK\_PORT`  |`5000`               | Porta do app (use a mesma no Traefik`loadbalancer.server.port`). | | `REGISTRY\_URL`|`registry.local:5000`| Registry para *push* da imagem.                                   |
-|`STACK\_NAME`  |`devops\`              | Nome lógico da *stack* no Swarm.                                  |
+| Variável       | Exemplo               | Uso                                                               |
+| -------------- | --------------------- | ----------------------------------------------------------------- |
+| `FLASK_ENV`    | `production`          | Modo de execução do Flask.                                        |
+| `FLASK_HOST`   | `0.0.0.0`             | Host de *bind* do servidor.                                       |
+| `FLASK_PORT`   | `5000`                | Porta do app (use a mesma no Traefik `loadbalancer.server.port`). |
+| `REGISTRY_URL` | `registry.local:5000` | Registry para *push* da imagem.                                   |
+| `STACK_NAME`   | `devops`              | Nome lógico da *stack* no Swarm.                                  |
 
 > **Importante:** não *commitar* `.env`. Use **Secrets** no Gitea para credenciais/chaves.
 
