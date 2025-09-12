@@ -516,6 +516,6 @@ Variáveis comuns:
 
 ## 📄 Licença
 
-Este projeto é licenciado sob **MIT**. Veja `LICENSE`.
+Distribuído sob a licença [MIT](./LICENSE).
 
 > *“Automate all the things, but understand each step.”*
