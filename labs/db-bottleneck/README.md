@@ -31,6 +31,17 @@ python run_scenarios.py
 
 O script sobe o ambiente, roda os cenários na ordem e grava em `results/` a tabela `results.md`, o `results.json`, os dois `EXPLAIN` e as saídas das migrações. Leva cerca de 10 minutos.
 
+## Gravar a demo
+
+```bash
+uv run --with pillow python demo/record_demo.py          # todos os clipes
+uv run --with pillow python demo/record_demo.py 4        # só o clipe de cache
+```
+
+O script roda os comandos de verdade, captura a saída e renderiza um vídeo de terminal por cenário em `demo/out/` (MP4 1280x720 e a última tela em PNG). As esperas longas aparecem encurtadas e marcadas como "acelerado". Precisa de Docker, k6 e ffmpeg no PATH (`winget install Gyan.FFmpeg`). Ele para com erro se o Docker não estiver rodando.
+
+Os números variam entre rodadas, principalmente perto da saturação: a tabela abaixo é uma rodada do `run_scenarios.py`, e cada vídeo mostra a rodada em que foi gravado.
+
 ## Rodar um cenário à mão
 
 ```bash
@@ -76,6 +87,6 @@ Em outra máquina os números absolutos mudam; a relação entre os cenários se
 
 - **Scale-up:** a consulta continua lendo a tabela inteira; CPU extra só divide o mesmo trabalho desnecessário.
 - **Índice:** muda o algoritmo, de ler 3 milhões de linhas para ler 20.
-- **Valkey:** a 200 req/s o índice sozinho dá conta e o cache só acrescenta um salto de rede. A 500 req/s o banco satura; com o cache-aside, 59% das leituras saem do Valkey e o banco faz metade das transações. Cache sem índice não ajuda: com o cache frio, cada *miss* é um Seq Scan, a fila cresce e o cache nunca aquece.
+- **Valkey:** a 200 req/s o índice sozinho dá conta e o cache só acrescenta um salto de rede. A 500 req/s o Valkey tirou de 20% a 47% da CPU do banco em todas as rodadas, mas a API (2 workers gunicorn) passa a usar perto de 2,7 CPUs e vira o gargalo; por isso o p95 oscila muito entre rodadas (a mediana de 3 rodadas foi 716 ms só com índice e 383 ms com Valkey, e numa delas o Valkey saiu pior). Depois de corrigir um gargalo, meça de novo: ele muda de lugar. Cache sem índice não ajuda: com o cache frio, cada *miss* é um Seq Scan, a fila cresce e o cache nunca aquece.
 - **Lock de migração:** o `ALTER TABLE` precisa de um lock exclusivo e entra na fila atrás da transação longa; todas as consultas seguintes entram na fila atrás do `ALTER`. A migração nem começou e a API já parou.
 - **`lock_timeout`:** a migração desiste rápido e pode ser repetida fora do pico; o tráfego não para.
