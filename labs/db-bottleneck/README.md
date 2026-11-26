@@ -2,6 +2,8 @@
 
 Demonstra por que aumentar a máquina (*scale-up*) é paliativo para gargalos de banco de dados e o que resolve de fato: índice, cache e migrações que não travam a tabela.
 
+Case sugerido por Igor Dantas, SRE Sênior no C6 Bank. Material da palestra "Funciona na minha máquina (grande): o paliativo do scale-up" (live 24h Black Friday LINUXtips 2026).
+
 Stack: API Flask (gunicorn + pool de conexões psycopg), PostgreSQL 16 com 3 milhões de pedidos, Redis e k6 para gerar carga. Tudo em Docker Compose.
 
 ## Pré-requisitos
