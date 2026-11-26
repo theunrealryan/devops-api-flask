@@ -1,0 +1,13 @@
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.43..83.45 rows=20 width=29) (actual time=0.150..0.526 rows=20 loops=1)
+   Buffers: shared read=23
+   ->  Index Scan using idx_orders_customer_created on orders  (cost=0.43..124.95 rows=30 width=29) (actual time=0.147..0.518 rows=20 loops=1)
+         Index Cond: (customer_id = 42)
+         Buffers: shared read=23
+ Planning:
+   Buffers: shared hit=120 read=1
+ Planning Time: 0.666 ms
+ Execution Time: 0.589 ms
+(9 rows)
+

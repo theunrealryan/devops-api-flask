@@ -1,0 +1,2 @@
+SET
+psql:/sql/migration-safe.sql:2: ERROR:  canceling statement due to lock timeout
