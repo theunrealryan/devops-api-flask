@@ -32,22 +32,27 @@ services:
       timeout: 3s
       retries: 60
 
-  redis:
-    image: redis:7.4-alpine
+  cache:
+    image: valkey/valkey:8.0
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   api:
     build: ./app
     environment:
       DATABASE_URL: postgresql://lab:lab@db:5432/shop
-      REDIS_URL: redis://redis:6379/0
+      CACHE_URL: redis://cache:6379/0
       CACHE_TTL: ${CACHE_TTL:-0}
     ports:
       - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
-      redis:
-        condition: service_started
+      cache:
+        condition: service_healthy
 
   k6:
     image: grafana/k6:0.54.0
@@ -56,6 +61,7 @@ services:
       BASE_URL: http://api:8080
     volumes:
       - ./k6:/scripts:ro
+      - ./results:/results
 
 volumes:
   pgdata:
