@@ -1,0 +1,54 @@
+ pid | blocked_by | wait_event_type | state  |   waiting_for   |                        query                        
+-----+------------+-----------------+--------+-----------------+-----------------------------------------------------
+ 552 | {}         | Timeout         | active | 00:02:21.307358 | SELECT pg_sleep(60);
+ 569 | {552}      | Lock            | active | 00:02:17.796982 | ALTER TABLE orders ADD COLUMN coupon text;
+ 521 | {569}      | Lock            | active | 00:02:17.754874 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 522 | {569}      | Lock            | active | 00:02:17.705224 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 570 | {569}      | Lock            | active | 00:02:17.647492 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 571 | {569}      | Lock            | active | 00:02:17.597329 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 572 | {569}      | Lock            | active | 00:02:17.547687 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 573 | {569}      | Lock            | active | 00:02:17.495168 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 520 | {569}      | Lock            | active | 00:02:17.153508 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 519 | {569}      | Lock            | active | 00:02:17.052106 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 576 | {569}      | Lock            | active | 00:02:16.846098 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 577 | {569}      | Lock            | active | 00:02:16.795865 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 578 | {569}      | Lock            | active | 00:02:16.495043 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 579 | {569}      | Lock            | active | 00:02:15.495347 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 574 | {569}      | Lock            | active | 00:00:05.651235 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 575 | {569}      | Lock            | active | 00:00:05.600285 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 588 | {569}      | Lock            | active | 00:00:02.702481 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+ 589 | {569}      | Lock            | active | 00:00:02.501733 |                                                    +
+     |            |                 |        |                 |     INSERT INTO orders (customer_id, status, total)+
+     |            |                 |        |                 |     VAL
+(18 rows)
+

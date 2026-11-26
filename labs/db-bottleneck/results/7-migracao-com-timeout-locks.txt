@@ -1,0 +1,5 @@
+ pid | blocked_by | wait_event_type | state  |  waiting_for   |        query         
+-----+------------+-----------------+--------+----------------+----------------------
+ 725 | {}         | Timeout         | active | 00:00:09.55634 | SELECT pg_sleep(60);
+(1 row)
+

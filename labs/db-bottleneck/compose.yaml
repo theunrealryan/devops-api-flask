@@ -1,0 +1,67 @@
+name: db-bottleneck
+
+services:
+  db:
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_PASSWORD: lab
+      POSTGRES_DB: shop
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${PG_SHARED_BUFFERS:-64MB}
+      - -c
+      - max_connections=200
+      - -c
+      - log_lock_waits=on
+      - -c
+      - deadlock_timeout=1s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./sql:/sql:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "${PG_CPUS:-0.5}"
+          memory: ${PG_MEM:-512m}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U lab -d shop"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+
+  cache:
+    image: valkey/valkey:8.0
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./app
+    environment:
+      DATABASE_URL: postgresql://lab:lab@db:5432/shop
+      CACHE_URL: redis://cache:6379/0
+      CACHE_TTL: ${CACHE_TTL:-0}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+
+  k6:
+    image: grafana/k6:0.54.0
+    profiles: ["load"]
+    environment:
+      BASE_URL: http://api:8080
+    volumes:
+      - ./k6:/scripts:ro
+      - ./results:/results
+
+volumes:
+  pgdata:

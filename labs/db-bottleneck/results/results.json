@@ -1,0 +1,83 @@
+{
+  "1-baseline-50rps": {
+    "requests": 576,
+    "failed_pct": 99.3,
+    "p95_ms": 10000.6,
+    "p99_ms": 10004.3,
+    "avg_ms": 9969.0,
+    "dropped": 425,
+    "db_queries": 184
+  },
+  "2-scaleup-50rps": {
+    "requests": 592,
+    "failed_pct": 92.4,
+    "p95_ms": 10006.7,
+    "p99_ms": 10034.0,
+    "avg_ms": 9724.2,
+    "dropped": 411,
+    "db_queries": 433
+  },
+  "3-indice-50rps": {
+    "requests": 1001,
+    "failed_pct": 0,
+    "p95_ms": 15.8,
+    "p99_ms": 30.4,
+    "avg_ms": 5.9,
+    "dropped": 0,
+    "db_queries": 1910
+  },
+  "4-indice-200rps": {
+    "requests": 4000,
+    "failed_pct": 0,
+    "p95_ms": 6.8,
+    "p99_ms": 46.0,
+    "avg_ms": 4.1,
+    "dropped": 0,
+    "db_queries": 7345
+  },
+  "5-indice-valkey-200rps": {
+    "requests": 4000,
+    "failed_pct": 0,
+    "p95_ms": 21.9,
+    "p99_ms": 43.6,
+    "avg_ms": 7.6,
+    "dropped": 0,
+    "db_queries": 4648,
+    "cache_hit_pct": 35.0
+  },
+  "4-indice-500rps": {
+    "requests": 9207,
+    "failed_pct": 0,
+    "p95_ms": 776.2,
+    "p99_ms": 879.8,
+    "avg_ms": 290.8,
+    "dropped": 793,
+    "db_queries": 16197
+  },
+  "5-indice-valkey-500rps": {
+    "requests": 9975,
+    "failed_pct": 0,
+    "p95_ms": 90.8,
+    "p99_ms": 147.1,
+    "avg_ms": 16.0,
+    "dropped": 25,
+    "db_queries": 8144,
+    "cache_hit_pct": 58.7
+  },
+  "6-migracao-sem-timeout": {
+    "requests": 832,
+    "failed_pct": 70.6,
+    "p95_ms": 10000.4,
+    "p99_ms": 10000.8,
+    "avg_ms": 7057.2,
+    "dropped": 168
+  },
+  "7-migracao-com-timeout": {
+    "requests": 991,
+    "failed_pct": 0,
+    "p95_ms": 7.0,
+    "p99_ms": 1468.1,
+    "avg_ms": 39.8,
+    "dropped": 10
+  }
+}
